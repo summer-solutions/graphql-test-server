@@ -4,6 +4,6 @@ RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-COPY server /app/server
+COPY /server /app/server
 
 CMD ["/app/server"]
