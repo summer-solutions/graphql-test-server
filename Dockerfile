@@ -2,9 +2,9 @@ FROM golang:1.15-buster as builder
 
 WORKDIR /app
 
-#COPY go.* ./
+COPY go.* ./
 #RUN go mod download
-#COPY . ./
+COPY . ./
 
 RUN go build -mod=readonly -v -o server
 
