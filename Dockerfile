@@ -8,6 +8,7 @@ RUN go build -mod=readonly -v -o server
 
 FROM debian:buster-slim
 RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    --no-install-recommends \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
