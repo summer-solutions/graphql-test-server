@@ -138,7 +138,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Todo.User(childComplexity), true
 
-	case "User.Age":
+	case "User.age":
 		if e.complexity.User.Age == nil {
 			break
 		}
@@ -237,7 +237,7 @@ type Todo {
 type User {
   id: ID!
   name: String!
-  Age: Int!
+  age: Int!
 }
 
 type Query {
@@ -695,7 +695,7 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_Age(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_age(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2000,8 +2000,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Age":
-			out.Values[i] = ec._User_Age(ctx, field, obj)
+		case "age":
+			out.Values[i] = ec._User_age(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

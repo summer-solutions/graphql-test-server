@@ -12,7 +12,7 @@ type Todo {
 type User {
   id: ID!
   name: String!
-  Age: Int!
+  age: Int!
 }
 
 type Query {
