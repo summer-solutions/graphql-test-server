@@ -2,7 +2,7 @@ FROM node:12-slim
 
 WORKDIR /usr/src/app
 
-OPY package*.json ./
+COPY package*.json ./
 
 RUN yarn install --production
 
