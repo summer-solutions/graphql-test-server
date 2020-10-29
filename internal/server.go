@@ -1,9 +1,9 @@
-package main
+package internal
 
 import (
+	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"os"
-	"summer-solutions/graphql-test-server/graph"
-	"summer-solutions/graphql-test-server/graph/generated"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,24 +12,22 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-const defaultPort = "8080"
-
-func main() {
+func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = defaultPort
+		port = fmt.Sprintf("%d", defaultPort)
 	}
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(cors.Default())
-	r.POST("/query", graphqlHandler())
+	r.POST("/query", graphqlHandler(server))
 	r.GET("/", playgroundHandler())
 	panic(r.Run(":" + port))
 }
 
-func graphqlHandler() gin.HandlerFunc {
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
+	h := handler.NewDefaultServer(server)
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
