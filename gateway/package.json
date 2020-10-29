@@ -4,7 +4,8 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "yarn install --production"
   },
   "dependencies": {
     "@apollo/gateway": "^0.21.0",
