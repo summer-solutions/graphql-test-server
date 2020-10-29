@@ -1,6 +1,6 @@
 type Review {
   body: String!
-  author: User! @provides(fields: "username")
+  author: User!
   product: Product!
 }
 
