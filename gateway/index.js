@@ -3,9 +3,9 @@ const { ApolloGateway } = require('@apollo/gateway')
 
 const gateway = new ApolloGateway({
     serviceList: [
-        { name: 'accounts', url: 'https://accounts.supper-api.com/query' },
-        { name: 'products', url: 'https://products.supper-api.com/query' },
-        { name: 'reviews', url: 'https://reviews.supper-api.com/query' },
+        { name: 'accounts', url: 'https://accounts.summer-api.com/query' },
+        { name: 'products', url: 'https://products.summer-api.com/query' },
+        { name: 'reviews', url: 'https://reviews.summer-api.com/query' },
     ],
 })
 
