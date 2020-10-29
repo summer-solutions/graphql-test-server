@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . ./
 
-RUN go build -mod=readonly -v -o server ./products/accounts
+RUN go build -mod=readonly -v -o server ./services/products
 
 FROM debian:buster-slim
 RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
