@@ -45,7 +45,7 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h := handler.NewDefaultServer(server)
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		asErr, is := err.(error)
-		l := log.WithField("stack", string(debug.Stack()))
+		l := log.WithField("stack", string(debug.Stack())).WithField("Severity", "Error")
 		if is {
 			l.WithError(asErr).Error(asErr.Error())
 		} else {
