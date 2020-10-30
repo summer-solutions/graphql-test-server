@@ -49,7 +49,6 @@ func GinContextFromContext(ctx context.Context) *gin.Context {
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h := handler.NewDefaultServer(server)
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-		//l := log.WithField("@type", "type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent")
 		request := GinContextFromContext(ctx)
 		requestPart := gin.H{"requestMethod": request.Request.Method, "url": request.Request.URL.String(),
 			"userAgent": request.Request.UserAgent(), "referrer": request.Request.Referer(), "responseStatusCode": 503, "remoteIp": request.ClientIP()}
@@ -62,8 +61,14 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 			trace = fmt.Sprintf("projects/%s/traces/%s", "test-med-281914", traceParts[0])
 		}
 		l = log.WithField("logging.googleapis.com/trace", trace)
-
-		l.Error(string(debug.Stack()))
+		var message string
+		asErr, is := err.(error)
+		if is {
+			message = asErr.Error()
+		} else {
+			message = "panic"
+		}
+		l.Error(message + "\n" + string(debug.Stack()))
 		return errors.New("internal server error")
 	})
 	return func(c *gin.Context) {
