@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"cloud.google.com/go/logging"
 	"context"
 	"errors"
 	"fmt"
@@ -25,11 +26,11 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 		port = fmt.Sprintf("%d", defaultPort)
 	}
 	if os.Getenv("DEBUG") == "" {
-		log.SetHandler(json.New(os.Stdout))
+		log.SetHandler(json.Default)
 		log.SetLevel(log.WarnLevel)
 		gin.SetMode(gin.ReleaseMode)
 	} else {
-		log.SetHandler(text.New(os.Stdout))
+		log.SetHandler(text.Default)
 		log.SetLevel(log.DebugLevel)
 	}
 	r := gin.New()
@@ -50,6 +51,16 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		} else {
 			l.Errorf("%v", err)
 		}
+
+		client, err := logging.NewClient(context.Background(), "test-med-281914")
+		if err != nil {
+			log.Fatalf("Failed to create client: %v", err)
+		}
+		defer client.Close()
+		logName := "my-log"
+		e := logging.Entry{}
+		e.Severity = logging.Error
+		client.Logger(logName).Log(e)
 		return errors.New("internal server error")
 	})
 	return func(c *gin.Context) {
