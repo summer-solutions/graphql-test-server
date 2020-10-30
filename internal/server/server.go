@@ -1,4 +1,4 @@
-package internal
+package server
 
 import (
 	"context"
@@ -33,6 +33,7 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 		log.SetLevel(log.DebugLevel)
 	}
 	r := gin.New()
+	r.Use(ginContextToContextMiddleware())
 	r.Use(gin.Recovery())
 	r.Use(cors.Default())
 	r.POST("/query", graphqlHandler(server))
@@ -40,16 +41,17 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 	panic(r.Run(":" + port))
 }
 
+func GinContextFromContext(ctx context.Context) *gin.Context {
+	return ctx.Value("GinContextKey").(*gin.Context)
+}
+
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h := handler.NewDefaultServer(server)
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-		asErr, is := err.(error)
-		l := log.WithField("stack", string(debug.Stack())).WithField("Severity", "Error")
-		if is {
-			l.WithError(asErr).Error(asErr.Error())
-		} else {
-			l.Errorf("%v", err)
-		}
+		l := log.WithField("@type", "type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent")
+		request := GinContextFromContext(ctx)
+		l = l.WithField("httpRequest", gin.H{"requestMethod": request.Request.Method})
+		l.Error(string(debug.Stack()))
 		return errors.New("internal server error")
 	})
 	return func(c *gin.Context) {
@@ -61,5 +63,13 @@ func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func ginContextToContextMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
 	}
 }
