@@ -50,7 +50,8 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		l := log.WithField("@type", "type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent")
 		request := GinContextFromContext(ctx)
-		l = l.WithField("httpRequest", gin.H{"requestMethod": request.Request.Method})
+		l = l.WithField("httpRequest", gin.H{"requestMethod": request.Request.Method, "url": request.Request.URL.String(),
+			"userAgent": request.Request.UserAgent(), "referrer": request.Request.Referer(), "responseStatusCode": 503, "remoteIp": request.ClientIP()})
 		l.Error(string(debug.Stack()))
 		return errors.New("internal server error")
 	})
