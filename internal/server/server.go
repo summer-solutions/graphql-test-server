@@ -8,6 +8,7 @@ import (
 	"github.com/apex/log/handlers/text"
 	"os"
 	"runtime/debug"
+	"strings"
 	log2 "summer-solutions/graphql-test-server/internal/log"
 
 	"github.com/gin-contrib/cors"
@@ -53,6 +54,15 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		requestPart := gin.H{"requestMethod": request.Request.Method, "url": request.Request.URL.String(),
 			"userAgent": request.Request.UserAgent(), "referrer": request.Request.Referer(), "responseStatusCode": 503, "remoteIp": request.ClientIP()}
 		l := log.WithField("context", gin.H{"httpRequest": requestPart})
+
+		var trace string
+		traceHeader := request.Request.Header.Get("X-Cloud-Trace-Context")
+		traceParts := strings.Split(traceHeader, "/")
+		if len(traceParts) > 0 && len(traceParts[0]) > 0 {
+			trace = fmt.Sprintf("projects/%s/traces/%s", "test-med-281914", traceParts[0])
+		}
+		l = log.WithField("trace", trace)
+
 		l.Error(string(debug.Stack()))
 		return errors.New("internal server error")
 	})
