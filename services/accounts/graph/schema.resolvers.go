@@ -12,7 +12,7 @@ import (
 )
 
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	fmt.Printf("%v\n", ctx.Value("hhh").(time.Time).String())
+	fmt.Printf("%v\n", ctx.Value("www").(time.Time).String())
 	return &model.User{
 		ID:       "1234",
 		Username: "Me",
