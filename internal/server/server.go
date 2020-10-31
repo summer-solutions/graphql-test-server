@@ -51,17 +51,20 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		request := GinContextFromContext(ctx)
 		requestPart := gin.H{"requestMethod": request.Request.Method,
-			"requestUrl":   request.Request.URL.String(),
-			"requestSize":  123432,
-			"responseSize": 12342,
-			"serverIp":     "123.33.21.21",
-			"latency":      "3.5s",
+			"requestUrl":   "https://accounts.summer-api.com/query",
+			"requestSize":  "399",
+			"responseSize": "347",
+			"serverIp":     "74.125.133.121",
+			"latency":      "0.005101409s",
 			"protocol":     "HTTP/1.1",
 			"userAgent":    request.Request.UserAgent(),
 			"referrer":     request.Request.Referer(),
-			"status":       503,
-			"remoteIp":     request.ClientIP()}
+			"status":       200,
+			"remoteIp":     "35.203.251.75"}
 		l := log.WithField("httpRequest", requestPart)
+		l = l.WithField("user", "llato")
+		l = l.WithField("@type", "type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent")
+		l = l.WithField("serviceContext", gin.H{"service": "frontend", "version": "bf6b5b09b9d3da92c7bf964ab1664fe751104517"})
 
 		var trace string
 		traceHeader := request.Request.Header.Get("X-Cloud-Trace-Context")
