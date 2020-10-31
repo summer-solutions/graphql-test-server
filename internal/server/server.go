@@ -50,9 +50,19 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h := handler.NewDefaultServer(server)
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		request := GinContextFromContext(ctx)
-		requestPart := gin.H{"requestMethod": request.Request.Method, "url": request.Request.URL.String(),
-			"userAgent": request.Request.UserAgent(), "referrer": request.Request.Referer(), "responseStatusCode": 503, "remoteIp": request.ClientIP()}
-		l := log.WithField("context", gin.H{"httpRequest": requestPart})
+		requestPart := gin.H{"requestMethod": request.Request.Method,
+			"requestUrl":   request.Request.URL.String(),
+			"requestSize":  123432,
+			"responseSize": 12342,
+			"serverIp":     "123.33.21.21",
+			"latency":      "3.5s",
+			"protocol":     "HTTP/1.1",
+			"userAgent":    request.Request.UserAgent(),
+			"referrer":     request.Request.Referer(),
+			"status":       503,
+			"remoteIp":     request.ClientIP()}
+		l := log.WithField("httpRequest", requestPart)
+		l = log.WithField("envs", os.Environ())
 
 		var trace string
 		traceHeader := request.Request.Header.Get("X-Cloud-Trace-Context")
