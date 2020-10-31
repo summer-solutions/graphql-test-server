@@ -70,7 +70,7 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		if len(traceParts) > 0 && len(traceParts[0]) > 0 {
 			trace = fmt.Sprintf("projects/%s/traces/%s", "test-med-281914", traceParts[0])
 		}
-		l = log.WithField("logging.googleapis.com/trace", trace)
+		l = l.WithField("logging.googleapis.com/trace", trace)
 		var message string
 		asErr, is := err.(error)
 		if is {
