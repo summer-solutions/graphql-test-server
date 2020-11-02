@@ -5,16 +5,11 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"summer-solutions/graphql-test-server/internal/log"
 	"summer-solutions/graphql-test-server/services/accounts/graph/generated"
 	"summer-solutions/graphql-test-server/services/accounts/graph/model"
-	"time"
 )
 
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	log.FromContext(ctx).Warn("test warn")
-	fmt.Printf("%v\n", ctx.Value("www").(time.Time).String())
 	return &model.User{
 		ID:       "1234",
 		Username: "Me",
