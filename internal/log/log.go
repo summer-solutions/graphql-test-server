@@ -1,33 +1,29 @@
 package log
 
 import (
-	j "encoding/json"
-	"io"
-	"os"
-	"sync"
-
+	"context"
+	"fmt"
 	"github.com/apex/log"
+	"github.com/gin-gonic/gin"
+	"os"
+	"strings"
 )
 
-var Default = New(os.Stderr)
-
-type Handler struct {
-	*j.Encoder
-	mu sync.Mutex
+func FromContext(ctx context.Context) *log.Entry {
+	return ctx.Value("Log").(*log.Entry)
 }
 
-func New(w io.Writer) *Handler {
-	return &Handler{
-		Encoder: j.NewEncoder(w),
+func ContextMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var trace string
+		traceHeader := c.Request.Header.Get("X-Cloud-Trace-Context")
+		traceParts := strings.Split(traceHeader, "/")
+		if len(traceParts) > 0 && len(traceParts[0]) > 0 {
+			trace = fmt.Sprintf("projects/%s/traces/%s", os.Getenv("GC_PROJECT_ID"), traceParts[0])
+		}
+		l := log.WithField("logging.googleapis.com/trace", trace)
+		ctx := context.WithValue(c.Request.Context(), "Log", l)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
 	}
-}
-
-func (h *Handler) HandleLog(e *log.Entry) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	row := e.Fields
-	row["severity"] = "ERROR"
-	row["message"] = e.Message
-	row["timestamp"] = e.Timestamp
-	return h.Encoder.Encode(row)
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/apex/log/handlers/text"
 	"os"
 	"runtime/debug"
-	"strings"
-	log2 "summer-solutions/graphql-test-server/internal/log"
+	logLocal "summer-solutions/graphql-test-server/internal/log"
+	handlerGoogle "summer-solutions/graphql-test-server/internal/log/handler"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,7 +26,7 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 		port = fmt.Sprintf("%d", defaultPort)
 	}
 	if os.Getenv("DEBUG") == "" {
-		log.SetHandler(log2.Default)
+		log.SetHandler(handlerGoogle.Default)
 		log.SetLevel(log.WarnLevel)
 		gin.SetMode(gin.ReleaseMode)
 	} else {
@@ -34,8 +34,9 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 		log.SetLevel(log.DebugLevel)
 	}
 	r := gin.New()
-	r.Use(ginContextToContextMiddleware())
 	r.Use(gin.Recovery())
+	r.Use(logLocal.ContextMiddleware())
+	r.Use(ginContextToContextMiddleware())
 	r.Use(cors.Default())
 	r.POST("/query", graphqlHandler(server))
 	r.GET("/", playgroundHandler())
@@ -49,14 +50,6 @@ func GinContextFromContext(ctx context.Context) *gin.Context {
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h := handler.NewDefaultServer(server)
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-		request := GinContextFromContext(ctx)
-		var trace string
-		traceHeader := request.Request.Header.Get("X-Cloud-Trace-Context")
-		traceParts := strings.Split(traceHeader, "/")
-		if len(traceParts) > 0 && len(traceParts[0]) > 0 {
-			trace = fmt.Sprintf("projects/%s/traces/%s", os.Getenv("GC_PROJECT_ID"), traceParts[0])
-		}
-		l := log.WithField("logging.googleapis.com/trace", trace)
 		var message string
 		asErr, is := err.(error)
 		if is {
@@ -64,8 +57,7 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		} else {
 			message = "panic"
 		}
-		stack := strings.Split(string(debug.Stack()), "\n")
-		l.Error(message + "\n" + strings.Join(stack[7:], "\n"))
+		logLocal.FromContext(ctx).Error(message + "\n" + string(debug.Stack()))
 		return errors.New("internal server error")
 	})
 	return func(c *gin.Context) {
