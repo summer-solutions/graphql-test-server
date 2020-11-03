@@ -17,4 +17,5 @@ RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -
 COPY --from=builder /app/accounts /app/accounts
 COPY --from=builder /app/products /app/products
 COPY --from=builder /app/reviews /app/reviews
+
 WORKDIR /app
