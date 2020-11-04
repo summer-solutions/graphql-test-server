@@ -10,8 +10,10 @@ import (
 	"runtime/debug"
 	logLocal "summer-solutions/graphql-test-server/internal/log"
 	handlerGoogle "summer-solutions/graphql-test-server/internal/log/handler"
+	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 
 	"github.com/apex/log"
@@ -38,6 +40,7 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 	r.Use(logLocal.ContextMiddleware())
 	r.Use(ginContextToContextMiddleware())
 	r.Use(cors.Default())
+	r.Use(timeout.New(timeout.WithTimeout(10 * time.Second)))
 	r.POST("/query", graphqlHandler(server))
 	r.GET("/", playgroundHandler())
 	panic(r.Run(":" + port))
@@ -48,6 +51,7 @@ func GinContextFromContext(ctx context.Context) *gin.Context {
 }
 
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
+	handler.New(server)
 	h := handler.NewDefaultServer(server)
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		var message string
