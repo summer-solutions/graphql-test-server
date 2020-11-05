@@ -43,13 +43,15 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 	r.Use(cors.Default())
 	r.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server))))
 	r.GET("/", playgroundHandler())
-	r.GET("/ping", pingHandler())
 	panic(r.Run(":" + port))
 }
 
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	h := handler.New(server)
 
+	h.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+	})
 	h.AddTransport(transport.Options{})
 	h.AddTransport(transport.POST{})
 
@@ -72,12 +74,6 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	})
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-func pingHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.String(200, "PONG")
 	}
 }
 
