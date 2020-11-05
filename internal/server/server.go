@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/apex/log/handlers/text"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/timeout"
@@ -26,6 +29,7 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 	if port == "" {
 		port = fmt.Sprintf("%d", defaultPort)
 	}
+	r := gin.New()
 	if os.Getenv("DEBUG") == "" {
 		log.SetHandler(handlerGoogle.Default)
 		log.SetLevel(log.WarnLevel)
@@ -33,18 +37,28 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 	} else {
 		log.SetHandler(text.Default)
 		log.SetLevel(log.DebugLevel)
+		r.Use(gin.Logger())
 	}
-	r := gin.New()
 	r.Use(ginContextToContextMiddleware())
 	r.Use(cors.Default())
 	r.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server))))
 	r.GET("/", playgroundHandler())
+	r.GET("/ping", pingHandler())
 	panic(r.Run(":" + port))
 }
 
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
-	handler.New(server)
-	h := handler.NewDefaultServer(server)
+	h := handler.New(server)
+
+	h.AddTransport(transport.Options{})
+	h.AddTransport(transport.POST{})
+
+	h.SetQueryCache(lru.New(1000))
+
+	h.Use(extension.Introspection{})
+	h.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New(100),
+	})
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		var message string
 		asErr, is := err.(error)
@@ -58,6 +72,12 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 	})
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func pingHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.String(200, "PONG")
 	}
 }
 
