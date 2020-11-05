@@ -4,26 +4,25 @@ import (
 	"context"
 	"fmt"
 	"github.com/apex/log"
-	"github.com/gin-gonic/gin"
 	"os"
 	"strings"
+	"summer-solutions/graphql-test-server/internal/gin"
 )
 
-func FromContext(ctx context.Context) *log.Entry {
-	return ctx.Value("Log").(*log.Entry)
-}
+const contextKey = "_log"
 
-func ContextMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func FromContext(ctx context.Context) *log.Entry {
+	g := gin.FromContext(ctx)
+	l, has := g.Get(contextKey)
+	if !has {
 		var trace string
-		traceHeader := c.Request.Header.Get("X-Cloud-Trace-Context")
+		traceHeader := g.Request.Header.Get("X-Cloud-Trace-Context")
 		traceParts := strings.Split(traceHeader, "/")
 		if len(traceParts) > 0 && len(traceParts[0]) > 0 {
 			trace = fmt.Sprintf("projects/%s/traces/%s", os.Getenv("GC_PROJECT_ID"), traceParts[0])
 		}
-		l := log.WithField("logging.googleapis.com/trace", trace)
-		ctx := context.WithValue(c.Request.Context(), "Log", l)
-		c.Request = c.Request.WithContext(ctx)
-		c.Next()
+		l = log.WithField("logging.googleapis.com/trace", trace)
+		g.Set(contextKey, l)
 	}
+	return l.(*log.Entry)
 }

@@ -35,17 +35,11 @@ func RunService(defaultPort uint, server graphql.ExecutableSchema) {
 		log.SetLevel(log.DebugLevel)
 	}
 	r := gin.New()
-	r.Use(gin.Recovery())
-	r.Use(logLocal.ContextMiddleware())
 	r.Use(ginContextToContextMiddleware())
 	r.Use(cors.Default())
 	r.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server))))
 	r.GET("/", playgroundHandler())
 	panic(r.Run(":" + port))
-}
-
-func GinContextFromContext(ctx context.Context) *gin.Context {
-	return ctx.Value("GinContextKey").(*gin.Context)
 }
 
 func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
