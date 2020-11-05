@@ -200,8 +200,14 @@ var sources = []*ast.Source{
   me: User
 }
 
+"""
+Currently logged user
+"""
 type User @key(fields: "id") {
   id: ID!
+  """
+  Unique user name
+  """
   username: String!
 }
 `, BuiltIn: false},

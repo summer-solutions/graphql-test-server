@@ -2,8 +2,10 @@
 
 package model
 
+// Currently logged user
 type User struct {
-	ID       string `json:"id"`
+	ID string `json:"id"`
+	// Unique user name
 	Username string `json:"username"`
 }
 
