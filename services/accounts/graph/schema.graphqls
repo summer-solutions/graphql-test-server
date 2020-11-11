@@ -11,4 +11,5 @@ type User @key(fields: "id") {
   Unique user name
   """
   username: String!
+  age: Int!
 }

@@ -1,5 +1,6 @@
 const { ApolloServer } = require('apollo-server')
 const { ApolloGateway } = require('@apollo/gateway')
+const { InMemoryLRUCache } = require('apollo-server-caching')
 
 const gateway = new ApolloGateway({
     serviceList: [
@@ -11,6 +12,7 @@ const gateway = new ApolloGateway({
 
 const server = new ApolloServer({
     gateway,
+    cache: new InMemoryLRUCache({maxSize: 1000}),
     subscriptions: false,
 })
 

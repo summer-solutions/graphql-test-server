@@ -7,6 +7,7 @@ type User struct {
 	ID string `json:"id"`
 	// Unique user name
 	Username string `json:"username"`
+	Age      int    `json:"age"`
 }
 
 func (User) IsEntity() {}
