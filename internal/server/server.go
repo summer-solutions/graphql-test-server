@@ -4,6 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"runtime/debug"
+	logLocal "summer-solutions/graphql-test-server/internal/log"
+	handlerGoogle "summer-solutions/graphql-test-server/internal/log/handler"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
@@ -12,11 +18,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
-	"os"
-	"runtime/debug"
-	logLocal "summer-solutions/graphql-test-server/internal/log"
-	handlerGoogle "summer-solutions/graphql-test-server/internal/log/handler"
-	"time"
 
 	"github.com/apex/log"
 
@@ -86,7 +87,8 @@ func playgroundHandler() gin.HandlerFunc {
 
 func ginContextToContextMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
+		type ginContextKey string
+		ctx := context.WithValue(c.Request.Context(), ginContextKey("GinContextKey"), c)
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}

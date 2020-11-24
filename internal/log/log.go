@@ -3,10 +3,11 @@ package log
 import (
 	"context"
 	"fmt"
-	"github.com/apex/log"
 	"os"
 	"strings"
 	"summer-solutions/graphql-test-server/internal/gin"
+
+	"github.com/apex/log"
 )
 
 const contextKey = "_log"
