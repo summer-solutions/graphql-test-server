@@ -1,0 +1,55 @@
+### START INFRA SECRETS
+infra_secrets:
+  - &session_cookie_redis localhost:26379:14
+  - &smtp_user "noreply@memove.com"
+  - &smtp_pass ""
+
+app_secrets:
+  - &login_token_secret 5ometh1ng#s3cr3t#
+  - &login_refresh_token_secret M&8!a"}
+  - &sentry_dns ""
+  - &email_secret "9ONnCxcNCqps2JR2ObuB7iOf0LLk3SeD"
+  - &password_secret "8WlixOnLAeK904AR5vXH97NXCLiPVn3A"
+### END INFRA SECRETS
+
+server:
+  https: false
+  port: 8080
+locales:
+  languages:
+    - en-US
+session:
+  cookie:
+    secret: spring
+    redis: *session_cookie_redis
+login:
+  login_token:
+    secret: *login_token_secret
+    expire: 3600
+  refresh_token:
+    secret: *login_refresh_token_secret
+    expire: 86400
+  login_locked_time: 3600
+  login_redis_key: logged:in:user:jwt
+  login_redis_locked_key: locked:user
+  refresh_token_redis_key: refresh:token:user:jwt
+  max_login_tries: 5
+cors:
+  - https://blulog-frontend.ovh.blutest.ovh
+  - https://blulog-console.now.sh
+email_secret: *email_secret
+password_secret: *password_secret
+frontend: https://blulog-frontend.ovh.blutest.ovh
+smtp:
+  host: localhost
+  user: *smtp_user
+  pass: *smtp_user
+  port: 21025
+  tls: false
+  from: "noreply@memove.com"
+contact_email: "contact@memove.com"
+sentry:
+  dns: *sentry_dns
+
+test_key: "test_value"
+test_bool: true

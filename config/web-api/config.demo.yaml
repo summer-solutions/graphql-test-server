@@ -1,0 +1,88 @@
+### START INFRA SECRETS
+infra_secrets:
+  - &session_cookie_redis localhost:26379:4
+  - &smtp_host "127.0.0.1"
+  - &smtp_port "1026"
+  - &video_stream_host_for_playing "https://streamer.memove.summer-api.com"
+  - &video_stream_host_for_streaming "rtmp://streamer.memove.summer-api.com"
+  - &oss_access_key LTAI4G99HtHtRAFZGAucc8Yb
+  - &oss_access_secret pHgdmhDBzLJdRqblTsUDTDJINxMVBc
+
+app_secrets:
+  - &login_token_secret 5ometh1ng#s3cr3t#
+  - &login_refresh_token_secret M&8!a"}
+  - &sentry_dns "https://09fb8a12965d43a591babd612b0d5361@o464316.ingest.sentry.io/5472350"
+  - &email_secret "9ONnCxcNCqps2JR2ObuB7iOf0LLk3SeD"
+  - &password_secret "8WlixOnLAeK904AR5vXH97NXCLiPVn3A"
+  - &braintree_merchant_id "bn9nfj5fs6snws8r"
+  - &braintree_public_key "54g6jyd7kqfr48hp"
+  - &braintree_private_key "c278b9af82dcc38c380d1a25afdd3608"
+### END INFRA SECRETS
+
+server:
+  https: false
+  port: 8080
+locales:
+  languages:
+    - en-US
+session:
+  cookie:
+    secret: spring
+    redis: *session_cookie_redis
+login:
+  login_token:
+    secret: *login_token_secret
+    expire: 3600
+  refresh_token:
+    secret: *login_refresh_token_secret
+    expire: 86400
+  login_locked_time: 3600
+  login_redis_key: logged:in:user:jwt
+  login_redis_locked_key: locked:user
+  refresh_token_redis_key: refresh:token:user:jwt
+  max_login_tries: 5
+  single_session_support: false
+cors:
+  - https://memove.summer-api.com
+  - http://localhost:2000
+email_secret: *email_secret
+password_secret: *password_secret
+frontend: https://memove.summer-api.com
+backend: https://api.memove.summer-api.com
+smtp:
+  host: *smtp_host
+  user: "test@coretrix.com"
+  pass: ""
+  port: *smtp_port
+  tls: false
+  from: "noreply@memove.com"
+contact_email: "contact@memove.com"
+sentry:
+  dns: *sentry_dns
+braintree:
+  merchant_id: qbv7s72x2zzjp55s
+  public_key: k8twsp8xp7dryfzz
+  private_key: 7a7a8c63c5fc7f7a3c707590f427484f
+oss:
+  host: oss-eu-central-1.aliyuncs.com
+  access_key_id: *oss_access_key
+  access_key_secret: *oss_access_secret
+  buckets:
+    memove-products-images: memove-products-images-demo.oss-eu-central-1.aliyuncs.com
+    memove-users-avatars: memove-users-avatars-demo.oss-eu-central-1.aliyuncs.com
+    memove-classes-videos: memove-classes-videos-demo.oss-eu-central-1.aliyuncs.com
+    memove-classes-videos-images: memove-classes-videos-images-demo.oss-eu-central-1.aliyuncs.com
+    memove-classes-videos-playlists: memove-classes-videos-playlists-demo.oss-eu-central-1.aliyuncs.com
+    memove-trainers-videos: memove-trainers-videos-demo.oss-eu-central-1.aliyuncs.com
+    memove-users-cover-images: memove-users-cover-images-demo.oss-eu-central-1.aliyuncs.com
+    memove-audio-tracks: memove-audio-tracks-demo.oss-eu-central-1.aliyuncs.com
+    memove-product-overview-sections-images: memove-product-overview-sections-images-demo.oss-eu-central-1.aliyuncs.com
+shared_dir: /shared
+video_stream_host_for_playing: *video_stream_host_for_playing
+video_stream_host_for_streaming: *video_stream_host_for_streaming
+captcha_url: "https://www.google.com/recaptcha/api/siteverify"
+captcha_secret: "6LdLmNoZAAAAAFwhYDoQrxQIq1l5DFnu7uKR4FZ-"
+nimble_client_id: "65d86905-e52a-43c4-8784-06ea47986b3e"
+nimble_direct_host: "nimble:8082"
+nimble_api_key: "1699696bdcb79c63f2d253766094aa53"
+nimble_ppv_password: "cz55Ks7PN334q6tStDZ9xLPk3z54nvjN"

@@ -5,11 +5,15 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"summer-solutions/graphql-test-server/internal/gin"
+	"summer-solutions/graphql-test-server/pkg/service"
 	"summer-solutions/graphql-test-server/services/accounts/graph/generated"
 	"summer-solutions/graphql-test-server/services/accounts/graph/model"
 )
 
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	fmt.Println(gin.FromContext(ctx).Get(service.OrmContextService))
 	return &model.User{
 		ID:       "1234",
 		Username: "Me",

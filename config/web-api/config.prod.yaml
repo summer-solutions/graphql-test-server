@@ -1,0 +1,90 @@
+### START INFRA SECRETS
+infra_secrets:
+  - &session_cookie_redis localhost:26379:4
+  - &video_stream_host_for_playing "https://streamer.memove.summer-api.com"
+  - &video_stream_host_for_streaming "rtmp://streamer.memove.summer-api.com"
+  - &oss_access_key LTAI4G99HtHtRAFZGAucc8Yb
+  - &oss_access_secret pHgdmhDBzLJdRqblTsUDTDJINxMVBc
+
+app_secrets:
+  - &nimble_stream_secret 6f61ed291b79be082b47af81e9d770ba
+  - &login_token_secret dummy
+  - &login_refresh_token_secret dummy
+  - &sentry_dns "dummy"
+  - &email_secret ""
+  - &password_secret ""
+  - &braintree_merchant_id ""
+  - &braintree_public_key ""
+  - &braintree_private_key ""
+  - &smtp_user ""
+  - &smtp_pass ""
+### END INFRA SECRETS
+
+arash: shams
+server:
+  https: false
+  port: 8080
+locales:
+  languages:
+    - en-US
+session:
+  cookie:
+    secret: spring
+    redis: *session_cookie_redis
+login:
+  login_token:
+    secret: *login_token_secret
+    expire: 3600
+  refresh_token:
+    secret: *login_refresh_token_secret
+    expire: 86400
+  login_locked_time: 3600
+  login_redis_key: logged:in:user:jwt
+  login_redis_locked_key: locked:user
+  refresh_token_redis_key: refresh:token:user:jwt
+  max_login_tries: 5
+  single_session_support: false
+cors:
+  - https://memove.com
+email_secret: *email_secret
+password_secret: *password_secret
+frontend: https://memove.com
+backend: https://api.memove.com
+smtp:
+  host: in-v3.mailjet.com
+  user: *smtp_user
+  pass: *smtp_pass
+  port: 587
+  tls: false
+  from: "noreply@memove.com"
+contact_email: "contact@memove.com"
+sentry:
+  dns: *sentry_dns
+braintree:
+  merchant_id: *braintree_merchant_id
+  public_key: *braintree_public_key
+  private_key: *braintree_private_key
+oss:
+  host: oss-eu-central-1.aliyuncs.com
+  access_key_id: *oss_access_key
+  access_key_secret: *oss_access_secret
+  buckets:
+    memove-products-images: memove-products-images.oss-eu-central-1.aliyuncs.com
+    memove-users-avatars: memove-users-avatars.oss-eu-central-1.aliyuncs.com
+    memove-classes-videos: memove-classes-videos.oss-eu-central-1.aliyuncs.com
+    memove-classes-videos-images: memove-classes-videos-images.oss-eu-central-1.aliyuncs.com
+    memove-classes-videos-playlists: memove-classes-videos-playlists.oss-eu-central-1.aliyuncs.com
+    memove-trainers-videos: memove-trainers-videos.oss-eu-central-1.aliyuncs.com
+    memove-users-cover-images: memove-users-cover-images.oss-eu-central-1.aliyuncs.com
+    memove-audio-tracks: memove-audio-tracks.oss-eu-central-1.aliyuncs.com
+    memove-product-overview-sections-images: memove-product-overview-sections-images.oss-eu-central-1.aliyuncs.com
+shared_dir: /shared
+video_stream_host_for_playing: *video_stream_host_for_playing
+video_stream_host_for_streaming: *video_stream_host_for_streaming
+nimble_stream_secret: *nimble_stream_secret
+captcha_url: "https://www.google.com/recaptcha/api/siteverify"
+captcha_secret: "6LdLmNoZAAAAAFwhYDoQrxQIq1l5DFnu7uKR4FZ-"
+nimble_client_id: "65d86905-e52a-43c4-8784-06ea47986b3e"
+nimble_direct_host: "nimble.nimble-prod:8082"
+nimble_api_key: "1699696bdcb79c63f2d253766094aa53"
+nimble_ppv_password: "cz55Ks7PN334q6tStDZ9xLPk3z54nvjN"
