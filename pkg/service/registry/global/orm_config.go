@@ -1,4 +1,4 @@
-package initializer
+package global
 
 import (
 	"io/ioutil"
@@ -16,7 +16,7 @@ import (
 
 var ormConfig orm.ValidatedRegistry
 
-var OrmHandler server.InitHandler = func(s *server.Spring) error {
+var OrmConfigGlobalService server.InitHandler = func(s *server.Server, def *server.Def) {
 	registry, err := initOrmRegistry(s)
 	if err != nil {
 		panic(err)
@@ -24,19 +24,16 @@ var OrmHandler server.InitHandler = func(s *server.Spring) error {
 
 	registerEntities(registry)
 
-	err = initOrmConfig(registry)
+	err = initOrmConfig(registry, def)
 	if err != nil {
 		panic(err)
 	}
-
 	if s.IsInLocalMode() {
 		err = checkForAlters(ormConfig)
 		if err != nil {
 			panic(err)
 		}
 	}
-
-	return nil
 }
 
 func registerEntities(registry *orm.Registry) {
@@ -49,7 +46,7 @@ func registerEntities(registry *orm.Registry) {
 	//registry.RegisterEnumStruct("entity.DurationRangeAll", entity.DurationRangeAll)
 }
 
-func initOrmRegistry(_ *server.Spring) (*orm.Registry, error) {
+func initOrmRegistry(_ *server.Server) (*orm.Registry, error) {
 	var yamlFileData []byte
 	var err error
 
@@ -77,20 +74,21 @@ func initOrmRegistry(_ *server.Spring) (*orm.Registry, error) {
 	return orm.InitByYaml(data), nil
 }
 
-func initOrmConfig(registry *orm.Registry) error {
+func initOrmConfig(registry *orm.Registry, def *server.Def) error {
 	var err error
+
 	ormConfig, err = registry.Validate()
+
 	if err != nil {
 		return err
 	}
-	return server.IoCBuilder.Add(
-		di.Def{
-			Name: service.OrmConfigService,
-			Build: func(ctn di.Container) (interface{}, error) {
-				return ormConfig, nil
-			},
-		},
-	)
+
+	def.Name = service.OrmConfigService
+	def.Build = func(ctn di.Container) (interface{}, error) {
+		return ormConfig, nil
+	}
+
+	return nil
 }
 
 func checkForAlters(ormConfig orm.ValidatedRegistry) error {

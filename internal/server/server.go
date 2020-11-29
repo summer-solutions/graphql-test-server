@@ -29,31 +29,38 @@ const ModeDemo = "demo"
 const ModeProd = "prod"
 const ModeTest = "test"
 
-type InitHandler func(s *Spring) error
+var ioCGlobalContainer di.Container
+
+type InitHandler func(s *Server, def *Def)
 type GinMiddleware func(engine *gin.Engine) error
-
-var IoCBuilder *di.Builder
-var IoC di.Container
-
-type Spring struct {
-	mode         string
-	initHandlers []InitHandler
-	middlewares  []GinMiddleware
+type Def struct {
+	Name  string
+	scope string
+	Build func(ctn di.Container) (interface{}, error)
+	Close func(obj interface{}) error
 }
 
-func NewSpring(handler InitHandler, middlewares ...GinMiddleware) *Spring {
+type Server struct {
+	mode            string
+	initHandlers    []InitHandler
+	requestServices []InitHandler
+	middlewares     []GinMiddleware
+}
+
+func NewServer(handler InitHandler, middlewares ...GinMiddleware) *Server {
 	mode, hasMode := os.LookupEnv("SPRING_MODE")
 	if !hasMode {
 		mode = ModeProd
 	}
 
-	s := &Spring{mode: mode, middlewares: middlewares}
+	s := &Server{mode: mode, middlewares: middlewares}
 
 	s.initializeIoCHandlers(handler)
+
 	return s
 }
 
-func (s *Spring) Run(defaultPort uint, server graphql.ExecutableSchema) {
+func (s *Server) Run(defaultPort uint, server graphql.ExecutableSchema) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = fmt.Sprintf("%d", defaultPort)
@@ -70,6 +77,7 @@ func (s *Spring) Run(defaultPort uint, server graphql.ExecutableSchema) {
 		log.SetLevel(log.DebugLevel)
 		r.Use(gin.Logger())
 	}
+
 	r.Use(ginContextToContextMiddleware())
 
 	s.attachMiddlewares(r)
@@ -79,29 +87,72 @@ func (s *Spring) Run(defaultPort uint, server graphql.ExecutableSchema) {
 	panic(r.Run(":" + port))
 }
 
-func (s *Spring) RegisterInitHandler(handlers ...InitHandler) {
+func (s *Server) RegisterGlobalServices(handlers ...InitHandler) {
 	s.initHandlers = append(s.initHandlers, handlers...)
 }
 
-func (s *Spring) initializeIoCHandlers(handlerRegister func(*Spring) error) {
-	IoCBuilder, _ = di.NewBuilder()
+func (s *Server) RegisterRequestServices(handlers ...InitHandler) {
+	s.requestServices = append(s.requestServices, handlers...)
+}
 
-	err := handlerRegister(s)
-	if err != nil {
-		panic(err)
-	}
+func (s *Server) initializeIoCHandlers(handlerRegister InitHandler) {
+	ioCBuilder, _ := di.NewBuilder()
+
+	handlerRegister(s, nil)
 
 	for _, callback := range s.initHandlers {
-		err := callback(s)
+		def := &Def{}
+
+		callback(s, def)
+		if def.Name == "" {
+			panic("IoC global service is registered without name")
+		}
+
+		if def.Build == nil {
+			panic("IoC global service is registered without Build function")
+		}
+		def.scope = di.App
+
+		err := ioCBuilder.Add(di.Def{
+			Name:  def.Name,
+			Scope: def.scope,
+			Build: def.Build,
+			Close: def.Close,
+		})
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	IoC = IoCBuilder.Build()
+	for _, callback := range s.requestServices {
+		def := &Def{}
+
+		callback(s, def)
+		if def.Name == "" {
+			panic("IoC request service is registered without name")
+		}
+
+		if def.Build == nil {
+			panic("IoC request service is registered without Build function")
+		}
+
+		def.scope = di.Request
+
+		err := ioCBuilder.Add(di.Def{
+			Name:  def.Name,
+			Scope: def.scope,
+			Build: def.Build,
+			Close: def.Close,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	ioCGlobalContainer = ioCBuilder.Build()
 }
 
-func (s *Spring) attachMiddlewares(engine *gin.Engine) {
+func (s *Server) attachMiddlewares(engine *gin.Engine) {
 	for _, middleware := range s.middlewares {
 		err := middleware(engine)
 		if err != nil {
@@ -110,23 +161,23 @@ func (s *Spring) attachMiddlewares(engine *gin.Engine) {
 	}
 }
 
-func (s *Spring) IsInLocalMode() bool {
+func (s *Server) IsInLocalMode() bool {
 	return s.mode == ModeLocal
 }
 
-func (s *Spring) IsInProdMode() bool {
+func (s *Server) IsInProdMode() bool {
 	return s.mode == ModeProd
 }
 
-func (s *Spring) IsInDevMode() bool {
+func (s *Server) IsInDevMode() bool {
 	return s.mode == ModeDev
 }
 
-func (s *Spring) IsInDemoMode() bool {
+func (s *Server) IsInDemoMode() bool {
 	return s.mode == ModeDemo
 }
 
-func (s *Spring) IsInTestMode() bool {
+func (s *Server) IsInTestMode() bool {
 	return s.mode == ModeTest
 }
 
@@ -174,4 +225,26 @@ func ginContextToContextMiddleware() gin.HandlerFunc {
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
+}
+
+func GetRequestContainer(ctx context.Context) di.Container {
+	c := ctx.Value("GinContextKey").(*gin.Context)
+
+	container, has := c.Get("RequestContainer")
+	if has {
+		return container.(di.Container)
+	}
+
+	ioCRequestContainer, err := ioCGlobalContainer.SubContainer()
+	c.Set("RequestContainer", ioCRequestContainer)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return ioCRequestContainer
+}
+
+func GetGlobalContainer() di.Container {
+	return ioCGlobalContainer
 }

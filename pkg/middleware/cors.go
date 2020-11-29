@@ -12,7 +12,8 @@ import (
 )
 
 func Cors(engine *gin.Engine) error {
-	configService := server.IoC.Get(service.ConfigService).(*config.ViperConfig)
+	configService := server.GetGlobalContainer().Get(service.ConfigService).(*config.ViperConfig)
+
 	origins := configService.GetStringSlice("cors")
 	if len(origins) == 0 {
 		return fmt.Errorf("cors is missing")
