@@ -1,0 +1,34 @@
+version: '3'
+services:
+  mysql_orm:
+    image: percona:5.7.25
+    volumes:
+      - orm_data_mysql:/var/lib/mysql
+      - orm_logs_mysql:/var/log/mysql
+    ports:
+      - ${LOCAL_IP}:${MYSQL_PORT}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  redis_orm:
+    image: redis
+    volumes:
+      - orm_data_redis:/data
+    ports:
+      - ${LOCAL_IP}:${REDIS_PORT}:6379
+  rabbitmq_orm:
+    image: rabbitmq:management
+    hostname: 'rabbitmq'
+    volumes:
+      - orm_data_rabbitmq:/var/lib/rabbitmq
+    ports:
+      - ${LOCAL_IP}:${RABBITMQ_PORT}:5672
+      - ${LOCAL_IP}:${RABBITMQ_MANAGEMENT_WEB_PORT}:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq_user
+      - RABBITMQ_DEFAULT_PASS=rabbitmq_password
+      - RABBITMQ_DEFAULT_VHOST=test
+volumes:
+  orm_data_mysql: {}
+  orm_logs_mysql: {}
+  orm_data_redis: {}
+  orm_data_rabbitmq: {}

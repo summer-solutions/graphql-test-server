@@ -1,11 +1,10 @@
 ### START SECRETS
 secrets:
-  - &orm_log_db_pool_mysql root:root@tcp(host.docker.internal:23306)/memove_log
-  - &orm_default_mysql root:root@tcp(host.docker.internal:23306)/memove
-  - &orm_default_redis host.docker.internal:26379:1
-  - &orm_variables_redis host.docker.internal:26379:2
-  - &orm_default_elastic http://host.docker.internal:29200
-  - &orm_default_rabbitmq_server amqp://rabbitmq_user:rabbitmq_password@host.docker.internal:25672/
+  - &orm_log_db_pool_mysql root:root@tcp(localhost:7000)/log
+  - &orm_default_mysql root:root@tcp(localhost:7000)/default
+  - &orm_default_redis localhost:7001:1
+  - &orm_variables_redis localhost:7001:2
+  - &orm_default_rabbitmq_server amqp://rabbitmq_user:rabbitmq_password@localhost:7002/test
 
 ### END SECRETS
 
@@ -13,27 +12,10 @@ orm:
   log_db_pool:
     mysql: *orm_log_db_pool_mysql
   default:
-    elastic: *orm_default_elastic
     mysql: *orm_default_mysql
     redis: *orm_default_redis
     rabbitmq:
       server: *orm_default_rabbitmq_server
-      queues:
-        - name: msg.mail
-        - name: msg.video_views
-          prefetchCount: 1000
-        - name: msg.track_consent_event
-    dirty_queues:
-      orm.es_index_VideoEntity: 1000
-      orm.es_index_ClassEntity: 1000
-      orm.es_index_AttendanceEntity: 1000
-      orm.es_index_ProductEntity: 1000
-      orm.es_index_CityEntity: 1000
-      orm.es_index_StreetEntity: 1000
-      orm.upload_UploadEntity: 1
-      orm.new_order_sync_OrderEntity: 1
-      orm.new_order_sync_SubscriptionOrderEntity: 1
-      orm.order_sync_OrderEntity: 1
     locker: default
     local_cache: 1000
   variables:

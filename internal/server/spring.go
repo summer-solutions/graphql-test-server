@@ -19,6 +19,7 @@ import (
 	"runtime/debug"
 	logLocal "summer-solutions/graphql-test-server/internal/log"
 	handlerGoogle "summer-solutions/graphql-test-server/internal/log/handler"
+	"summer-solutions/graphql-test-server/internal/log/provider"
 	"time"
 )
 
@@ -60,6 +61,7 @@ func (s *Spring) Run(defaultPort uint, server graphql.ExecutableSchema) {
 	r := gin.New()
 
 	if !s.IsInProdMode() {
+		logLocal.SetProvider(provider.Google) //TODO from config
 		log.SetHandler(handlerGoogle.Default)
 		log.SetLevel(log.WarnLevel)
 		gin.SetMode(gin.ReleaseMode)
