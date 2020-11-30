@@ -3,8 +3,9 @@ package global
 import (
 	"io/ioutil"
 	"os"
-	"summer-solutions/graphql-test-server/internal/server"
 	"summer-solutions/graphql-test-server/pkg/entity"
+
+	"github.com/summer-solutions/spring"
 
 	"gopkg.in/yaml.v2"
 
@@ -15,7 +16,7 @@ import (
 
 var ormConfig orm.ValidatedRegistry
 
-var OrmConfigGlobalService server.InitHandler = func(s *server.Server, def *server.Def) {
+var OrmConfigGlobalService spring.InitHandler = func(s *spring.Server, def *spring.Def) {
 	registry, err := initOrmRegistry(s)
 	if err != nil {
 		panic(err)
@@ -45,7 +46,7 @@ func registerEntities(registry *orm.Registry) {
 	//registry.RegisterEnumStruct("entity.DurationRangeAll", entity.DurationRangeAll)
 }
 
-func initOrmRegistry(_ *server.Server) (*orm.Registry, error) {
+func initOrmRegistry(_ *spring.Server) (*orm.Registry, error) {
 	var yamlFileData []byte
 	var err error
 
@@ -73,7 +74,7 @@ func initOrmRegistry(_ *server.Server) (*orm.Registry, error) {
 	return orm.InitByYaml(data), nil
 }
 
-func initOrmConfig(registry *orm.Registry, def *server.Def) error {
+func initOrmConfig(registry *orm.Registry, def *spring.Def) error {
 	var err error
 
 	ormConfig, err = registry.Validate()

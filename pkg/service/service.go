@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"summer-solutions/graphql-test-server/internal/service"
+
+	"github.com/summer-solutions/spring/service"
 
 	"github.com/summer-solutions/orm"
 )

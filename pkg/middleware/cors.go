@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"fmt"
-	"summer-solutions/graphql-test-server/internal/service"
 	"time"
+
+	"github.com/summer-solutions/spring/service"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
