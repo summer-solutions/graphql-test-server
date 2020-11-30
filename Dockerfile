@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . ./
 
-RUN go build -mod=readonly -v -o accounts ./services/accounts
+RUN go build -v -o accounts ./services/accounts
 RUN go build -mod=readonly -v -o products ./services/products
 RUN go build -mod=readonly -v -o reviews ./services/reviews
 
