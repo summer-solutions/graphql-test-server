@@ -5,8 +5,8 @@ WORKDIR /app
 COPY . ./
 
 RUN go build -v -o accounts ./services/accounts
-RUN go build -mod=readonly -v -o products ./services/products
-RUN go build -mod=readonly -v -o reviews ./services/reviews
+RUN go build -v -o products ./services/products
+RUN go build -v -o reviews ./services/reviews
 
 FROM debian:buster-slim
 RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
