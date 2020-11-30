@@ -454,6 +454,8 @@ github.com/summer-solutions/orm v1.53.2/go.mod h1:pdsznJdRuYGkj3wRUVgIhr8VXpsRLp
 github.com/summer-solutions/spring v1.0.0 h1:6CSlYmFIQusQyenEDRSyV1yCBrJgF5Bii2toDVKzvOc=
 github.com/summer-solutions/spring v1.0.1 h1:9OClF23xo73h6qQ7Ic6Nz/WLrwpd62XJpDRP1GegbQA=
 github.com/summer-solutions/spring v1.0.1/go.mod h1:3D6CJzu01BsWuAVhElL9EWSbptBZrarhs8mK/ZtzL6I=
+github.com/summer-solutions/spring v1.0.2 h1:4Xfq+NMiv13r8wHkby/QqZG1fmmyvazjja387abfzas=
+github.com/summer-solutions/spring v1.0.2/go.mod h1:E+IMvOOjGdtD9/z3lZzgAw+VZrF+KO9Lj36GdJzufmI=
 github.com/tinylib/msgp v1.1.2/go.mod h1:+d+yLhGm8mzTaHzB+wgMYrodPfmZrzkirds8fDWklFE=
 github.com/tinylib/msgp v1.1.4 h1:LoJjc8YHnBUXK7kR6ocUJ0xHuonGLzpzV3RxMZ/4G4M=
 github.com/tinylib/msgp v1.1.4/go.mod h1:fw0zyanbVLI0CNimiAzGT53nQhEXzCaKYmTfeon9xHc=

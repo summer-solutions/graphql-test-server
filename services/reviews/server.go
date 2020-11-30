@@ -1,8 +1,8 @@
 package main
 
 import (
+	"summer-solutions/graphql-test-server/pkg/entity"
 	"summer-solutions/graphql-test-server/pkg/middleware"
-	globalLocal "summer-solutions/graphql-test-server/pkg/service/registry/global"
 	"summer-solutions/graphql-test-server/services/reviews/graph"
 	"summer-solutions/graphql-test-server/services/reviews/graph/generated"
 
@@ -21,6 +21,6 @@ func initHandlers(s *spring.Server, _ *spring.Def) {
 	s.RegisterGlobalServices(
 		global.LogGlobalService,
 		global.ConfigGlobalService,
-		globalLocal.OrmConfigGlobalService,
+		global.OrmConfigGlobalService(entity.Init),
 	)
 }
