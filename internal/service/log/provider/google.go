@@ -3,10 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/apex/log"
 	"os"
 	"strings"
 	"summer-solutions/graphql-test-server/internal/gin"
+
+	"github.com/apex/log"
 )
 
 func Google(ctx context.Context) log.Interface {

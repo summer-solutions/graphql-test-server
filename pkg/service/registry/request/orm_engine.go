@@ -1,18 +1,17 @@
 package request
 
 import (
-	"github.com/sarulabs/di"
 	"summer-solutions/graphql-test-server/internal/server"
 	"summer-solutions/graphql-test-server/pkg/service"
 
-	"github.com/summer-solutions/orm"
+	"github.com/sarulabs/di"
 )
 
 var OrmEngineRequestService server.InitHandler = func(s *server.Server, def *server.Def) {
 
-	def.Name = service.OrmContextService
+	def.Name = "orm_engine"
 	def.Build = func(ctn di.Container) (interface{}, error) {
-		ormConfigService := ctn.Get(service.OrmConfigService).(orm.ValidatedRegistry)
+		ormConfigService := service.OrmConfig()
 		ormEngine := ormConfigService.CreateEngine()
 		ormEngine.SetLogMetaData("Source", "web-api")
 

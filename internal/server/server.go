@@ -4,6 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"runtime/debug"
+	"summer-solutions/graphql-test-server/internal/service"
+	"time"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -11,16 +16,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/apex/log"
+	"github.com/apex/log/handlers/json"
 	"github.com/apex/log/handlers/text"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 	"github.com/sarulabs/di"
-	"os"
-	"runtime/debug"
-	logLocal "summer-solutions/graphql-test-server/internal/log"
-	handlerGoogle "summer-solutions/graphql-test-server/internal/log/handler"
-	"summer-solutions/graphql-test-server/internal/log/provider"
-	"time"
 )
 
 const ModeLocal = "local"
@@ -28,8 +28,6 @@ const ModeDev = "dev"
 const ModeDemo = "demo"
 const ModeProd = "prod"
 const ModeTest = "test"
-
-var ioCGlobalContainer di.Container
 
 type InitHandler func(s *Server, def *Def)
 type GinMiddleware func(engine *gin.Engine) error
@@ -68,8 +66,7 @@ func (s *Server) Run(defaultPort uint, server graphql.ExecutableSchema) {
 	r := gin.New()
 
 	if !s.IsInProdMode() {
-		logLocal.SetProvider(provider.Google) //TODO from config
-		log.SetHandler(handlerGoogle.Default)
+		log.SetHandler(json.Default)
 		log.SetLevel(log.WarnLevel)
 		gin.SetMode(gin.ReleaseMode)
 	} else {
@@ -100,56 +97,32 @@ func (s *Server) initializeIoCHandlers(handlerRegister InitHandler) {
 
 	handlerRegister(s, nil)
 
-	for _, callback := range s.initHandlers {
-		def := &Def{}
+	scopes := map[string][]InitHandler{di.App: s.initHandlers, di.Request: s.requestServices}
+	for scope, services := range scopes {
+		for _, callback := range services {
+			def := &Def{scope: scope}
 
-		callback(s, def)
-		if def.Name == "" {
-			panic("IoC global service is registered without name")
-		}
+			callback(s, def)
+			if def.Name == "" {
+				panic("IoC " + scope + " service is registered without name")
+			}
 
-		if def.Build == nil {
-			panic("IoC global service is registered without Build function")
-		}
-		def.scope = di.App
+			if def.Build == nil {
+				panic("IoC " + scope + " service is registered without Build function")
+			}
 
-		err := ioCBuilder.Add(di.Def{
-			Name:  def.Name,
-			Scope: def.scope,
-			Build: def.Build,
-			Close: def.Close,
-		})
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	for _, callback := range s.requestServices {
-		def := &Def{}
-
-		callback(s, def)
-		if def.Name == "" {
-			panic("IoC request service is registered without name")
-		}
-
-		if def.Build == nil {
-			panic("IoC request service is registered without Build function")
-		}
-
-		def.scope = di.Request
-
-		err := ioCBuilder.Add(di.Def{
-			Name:  def.Name,
-			Scope: def.scope,
-			Build: def.Build,
-			Close: def.Close,
-		})
-		if err != nil {
-			panic(err)
+			err := ioCBuilder.Add(di.Def{
+				Name:  def.Name,
+				Scope: def.scope,
+				Build: def.Build,
+				Close: def.Close,
+			})
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
-
-	ioCGlobalContainer = ioCBuilder.Build()
+	service.SetGlobalContainer(ioCBuilder.Build())
 }
 
 func (s *Server) attachMiddlewares(engine *gin.Engine) {
@@ -204,7 +177,7 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		} else {
 			message = "panic"
 		}
-		logLocal.FromContext(ctx).Error(message + "\n" + string(debug.Stack()))
+		service.Log().Error(message + "\n" + string(debug.Stack()))
 		return errors.New("internal server error")
 	})
 	return func(c *gin.Context) {
@@ -225,26 +198,4 @@ func ginContextToContextMiddleware() gin.HandlerFunc {
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
-}
-
-func GetRequestContainer(ctx context.Context) di.Container {
-	c := ctx.Value("GinContextKey").(*gin.Context)
-
-	container, has := c.Get("RequestContainer")
-	if has {
-		return container.(di.Container)
-	}
-
-	ioCRequestContainer, err := ioCGlobalContainer.SubContainer()
-	c.Set("RequestContainer", ioCRequestContainer)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return ioCRequestContainer
-}
-
-func GetGlobalContainer() di.Container {
-	return ioCGlobalContainer
 }

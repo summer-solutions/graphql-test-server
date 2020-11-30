@@ -2,9 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"summer-solutions/graphql-test-server/internal/server"
-	"summer-solutions/graphql-test-server/pkg/service"
-	"summer-solutions/graphql-test-server/pkg/service/config"
+	"summer-solutions/graphql-test-server/internal/service"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -12,7 +10,7 @@ import (
 )
 
 func Cors(engine *gin.Engine) error {
-	configService := server.GetGlobalContainer().Get(service.ConfigService).(*config.ViperConfig)
+	configService := service.Config()
 
 	origins := configService.GetStringSlice("cors")
 	if len(origins) == 0 {

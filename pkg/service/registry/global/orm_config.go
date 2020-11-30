@@ -5,7 +5,6 @@ import (
 	"os"
 	"summer-solutions/graphql-test-server/internal/server"
 	"summer-solutions/graphql-test-server/pkg/entity"
-	"summer-solutions/graphql-test-server/pkg/service"
 
 	"gopkg.in/yaml.v2"
 
@@ -83,7 +82,7 @@ func initOrmConfig(registry *orm.Registry, def *server.Def) error {
 		return err
 	}
 
-	def.Name = service.OrmConfigService
+	def.Name = "orm_config"
 	def.Build = func(ctn di.Container) (interface{}, error) {
 		return ormConfig, nil
 	}

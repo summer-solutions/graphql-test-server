@@ -2,17 +2,15 @@ package service
 
 import (
 	"context"
-	log2 "github.com/apex/log"
-	"summer-solutions/graphql-test-server/internal/log"
+	"summer-solutions/graphql-test-server/internal/service"
+
+	"github.com/summer-solutions/orm"
 )
 
-//context services
-const OrmContextService string = "orm_context"
+func OrmConfig() orm.ValidatedRegistry {
+	return service.GetGlobalContainer().Get("orm_config").(orm.ValidatedRegistry)
+}
 
-//global services
-const ConfigService string = "config"
-const OrmConfigService string = "orm_config"
-
-func Log(context context.Context) log2.Interface {
-	return log.FromContext(context)
+func OrmEngineContext(ctx context.Context) *orm.Engine {
+	return service.GetRequestContainer(ctx).Get("orm_context").(*orm.Engine)
 }
