@@ -6,8 +6,6 @@ import (
 	"summer-solutions/graphql-test-server/services/products/graph"
 	"summer-solutions/graphql-test-server/services/products/graph/generated"
 
-	"github.com/summer-solutions/spring/service/registry/request"
-
 	"github.com/summer-solutions/spring"
 	"github.com/summer-solutions/spring/service/registry/global"
 )
@@ -21,12 +19,7 @@ func main() {
 
 func initHandlers(s *spring.Server, _ *spring.Def) {
 	s.RegisterGlobalServices(
-		global.LogGlobalService,
-		global.ConfigGlobalService,
+		global.LogGlobalService(),
 		global.OrmConfigGlobalService(entity.Init),
-	)
-
-	s.RegisterRequestServices(
-		request.OrmEngineRequestService,
 	)
 }

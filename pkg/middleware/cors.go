@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/summer-solutions/spring/service"
@@ -11,11 +10,14 @@ import (
 )
 
 func Cors(engine *gin.Engine) error {
-	configService := service.Config()
+	configService, hasConfig := service.Config()
+	if !hasConfig {
+		return nil
+	}
 
 	origins := configService.GetStringSlice("cors")
 	if len(origins) == 0 {
-		return fmt.Errorf("cors is missing")
+		return nil
 	}
 
 	corsConfig := cors.Config{

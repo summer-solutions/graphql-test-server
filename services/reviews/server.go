@@ -19,8 +19,7 @@ func main() {
 
 func initHandlers(s *spring.Server, _ *spring.Def) {
 	s.RegisterGlobalServices(
-		global.LogGlobalService,
-		global.ConfigGlobalService,
+		global.LogGlobalService(),
 		global.OrmConfigGlobalService(entity.Init),
 	)
 }
