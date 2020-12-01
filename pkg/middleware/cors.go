@@ -3,14 +3,14 @@ package middleware
 import (
 	"time"
 
-	"github.com/summer-solutions/spring/service"
+	"github.com/summer-solutions/spring"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func Cors(engine *gin.Engine) error {
-	configService, hasConfig := service.Config()
+	configService, hasConfig := spring.CDConfig()
 	if !hasConfig {
 		return nil
 	}

@@ -476,6 +476,8 @@ github.com/summer-solutions/spring v1.0.6-0.20201201145340-4ce8b59d0c6c h1:sRg7i
 github.com/summer-solutions/spring v1.0.6-0.20201201145340-4ce8b59d0c6c/go.mod h1:rxenH+x3VkGfT+DIBLa8dIJdW1pNNClGvhVZObEZ6jg=
 github.com/summer-solutions/spring v1.0.6-0.20201201150039-a27e176a8961 h1:gjeFwSkzS4K8HpJMJkVMPAhfy0DEPlLwXU7wUDxwJFM=
 github.com/summer-solutions/spring v1.0.6-0.20201201150039-a27e176a8961/go.mod h1:rxenH+x3VkGfT+DIBLa8dIJdW1pNNClGvhVZObEZ6jg=
+github.com/summer-solutions/spring v1.0.6-0.20201201152502-d2d5a83a7aea h1:ytoqkDsEb4s7UkfCqN5MHzeDD2UcCch+u9SKkXLKoHs=
+github.com/summer-solutions/spring v1.0.6-0.20201201152502-d2d5a83a7aea/go.mod h1:rxenH+x3VkGfT+DIBLa8dIJdW1pNNClGvhVZObEZ6jg=
 github.com/tinylib/msgp v1.1.2/go.mod h1:+d+yLhGm8mzTaHzB+wgMYrodPfmZrzkirds8fDWklFE=
 github.com/tinylib/msgp v1.1.4 h1:LoJjc8YHnBUXK7kR6ocUJ0xHuonGLzpzV3RxMZ/4G4M=
 github.com/tinylib/msgp v1.1.4/go.mod h1:fw0zyanbVLI0CNimiAzGT53nQhEXzCaKYmTfeon9xHc=
