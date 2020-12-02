@@ -3,14 +3,14 @@ package middleware
 import (
 	"time"
 
-	"github.com/summer-solutions/spring"
+	"github.com/summer-solutions/spring/di"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-func Cors(engine *gin.Engine) error {
-	configService, hasConfig := spring.CDConfig()
+func Cors() gin.HandlerFunc {
+	configService, hasConfig := di.Config()
 	if !hasConfig {
 		return nil
 	}
@@ -28,6 +28,5 @@ func Cors(engine *gin.Engine) error {
 		MaxAge:           12 * time.Hour,
 		ExposeHeaders:    []string{"X-Invalid-Authorization"},
 	}
-	engine.Use(cors.New(corsConfig))
-	return nil
+	return cors.New(corsConfig)
 }
