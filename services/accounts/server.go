@@ -12,8 +12,9 @@ import (
 )
 
 func main() {
-	spring.NewServer().
+	spring.NewServer("accounts").
 		RegisterDIService(
+			services.Config("../../config/"),
 			services.LogGlobal(),
 			services.OrmRegistry(entity.Init),
 			services.OrmEngine(),

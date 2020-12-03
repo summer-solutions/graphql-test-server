@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	spring.NewServer().
+	spring.NewServer("reviews").
 		RegisterDIService(
 			services.LogGlobal(),
 			services.OrmRegistry(entity.Init),

@@ -1,0 +1,9 @@
+orm:
+  default:
+    mysql: root:root@tcp(localhost:7000)/test
+    redis: localhost:7001:0
+    rabbitmq:
+      server: amqp://rabbitmq_user:rabbitmq_password@localhost:7002/test
+    local_cache: 1000
+    locker: default
+
