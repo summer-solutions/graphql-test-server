@@ -12,14 +12,13 @@ import (
 )
 
 func main() {
-	spring.NewServer("products").
+	spring.New("products").
 		RegisterDIService(
-			services.LogGlobal(),
 			services.OrmRegistry(entity.Init),
 			services.OrmEngine(),
 		).
 		RegisterGinMiddleware(
 			middleware.Cors,
 		).
-		Run(4002, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+		RunServer(4002, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 }
