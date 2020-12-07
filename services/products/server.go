@@ -6,19 +6,23 @@ import (
 	"summer-solutions/graphql-test-server/services/products/graph"
 	"summer-solutions/graphql-test-server/services/products/graph/generated"
 
-	"github.com/summer-solutions/spring/services"
+	"github.com/gin-gonic/gin"
 
 	"github.com/summer-solutions/spring"
 )
 
 func main() {
-	spring.New("products").
+	spring.New("accounts").
 		RegisterDIService(
-			services.OrmRegistry(entity.Init),
-			services.OrmEngine(),
-		).
-		RegisterGinMiddleware(
-			middleware.Cors,
-		).
-		RunServer(4002, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+			spring.ServiceDefinitionOrmRegistry(entity.Init),
+			spring.ServiceDefinitionOrmEngine(),
+			spring.ServiceDefinitionOrmEngineForContext(),
+		).Build().
+		RunServer(
+			4002,
+			generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),
+			func(Router *gin.Engine) {
+				Router.Use(middleware.Cors())
+			},
+		)
 }

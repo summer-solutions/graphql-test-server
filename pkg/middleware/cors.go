@@ -3,19 +3,14 @@ package middleware
 import (
 	"time"
 
-	"github.com/summer-solutions/spring/ioc"
+	"github.com/summer-solutions/spring"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func Cors() gin.HandlerFunc {
-	configService, hasConfig := ioc.Config()
-	if !hasConfig {
-		return nil
-	}
-
-	origins := configService.GetStringSlice("cors")
+	origins := spring.DIC().Config().GetStringSlice("cors")
 	if len(origins) == 0 {
 		return nil
 	}
