@@ -1,7 +1,6 @@
 package main
 
 import (
-	"summer-solutions/graphql-test-server/pkg/entity"
 	"summer-solutions/graphql-test-server/pkg/middleware"
 	"summer-solutions/graphql-test-server/services/accounts/graph"
 	"summer-solutions/graphql-test-server/services/accounts/graph/generated"
@@ -12,12 +11,7 @@ import (
 )
 
 func main() {
-	spring.New("accounts").
-		RegisterDIService(
-			spring.ServiceDefinitionOrmRegistry(entity.Init),
-			spring.ServiceDefinitionOrmEngine(),
-			spring.ServiceDefinitionOrmEngineForContext(),
-		).Build().
+	spring.New("accounts").Build().
 		RunServer(
 			4001,
 			generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),

@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/summer-solutions/orm v1.53.3
-	github.com/summer-solutions/spring v1.1.6-0.20201207200410-784bb27d279f
+	github.com/summer-solutions/spring v1.1.7
 	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
 )

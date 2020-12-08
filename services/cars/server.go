@@ -4,8 +4,8 @@ import (
 	"github.com/summer-solutions/spring/scripts"
 	"summer-solutions/graphql-test-server/pkg/entity"
 	"summer-solutions/graphql-test-server/pkg/middleware"
-	"summer-solutions/graphql-test-server/services/reviews/graph"
-	"summer-solutions/graphql-test-server/services/reviews/graph/generated"
+	"summer-solutions/graphql-test-server/services/cars/graph"
+	"summer-solutions/graphql-test-server/services/cars/graph/generated"
 
 	"github.com/gin-gonic/gin"
 
@@ -13,15 +13,16 @@ import (
 )
 
 func main() {
-	spring.New("accounts").
+	spring.New("cars").
 		RegisterDIService(
+			spring.ServiceProviderConfigDirectory("../../config"),
 			spring.ServiceDefinitionOrmRegistry(entity.Init),
 			spring.ServiceDefinitionOrmEngine(),
 			spring.ServiceDefinitionOrmEngineForContext(),
-			spring.ServiceDefinitionDynamicScript(&scripts.ORMAltersScript{}),
+			scripts.ORMAlters(),
 		).Build().
 		RunServer(
-			4003,
+			4005,
 			generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),
 			func(Router *gin.Engine) {
 				Router.Use(middleware.Cors())
