@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"summer-solutions/graphql-test-server/pkg/dic"
 	"summer-solutions/graphql-test-server/pkg/entity"
 	"summer-solutions/graphql-test-server/services/cars/graph/generated"
@@ -21,9 +20,9 @@ func (r *queryResolver) Cars(ctx context.Context) ([]*model.Car, error) {
 	cars := make([]*model.Car, len(carEntities))
 	for i, carEntity := range carEntities {
 		cars[i] = &model.Car{
-			ID:      fmt.Sprintf("%d", carEntity.ID),
+			ID:      int64(carEntity.ID),
 			Name:    carEntity.Name,
-			BrandID: uint64(carEntity.Brand.ID),
+			BrandID: int64(carEntity.Brand.ID),
 		}
 	}
 	return cars, nil
