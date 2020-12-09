@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/summer-solutions/spring/scripts"
 	"summer-solutions/graphql-test-server/pkg/entity"
 	"summer-solutions/graphql-test-server/pkg/middleware"
 	"summer-solutions/graphql-test-server/services/cars/graph"
+	"summer-solutions/graphql-test-server/services/cars/graph/dataloaders"
 	"summer-solutions/graphql-test-server/services/cars/graph/generated"
+
+	"github.com/summer-solutions/spring/scripts"
 
 	"github.com/gin-gonic/gin"
 
@@ -20,6 +22,7 @@ func main() {
 			spring.ServiceDefinitionOrmEngine(),
 			spring.ServiceDefinitionOrmEngineForContext(),
 			scripts.ORMAlters(),
+			dataloaders.CarLoaderService(),
 		).Build().
 		RunServer(
 			4005,

@@ -54,12 +54,12 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Cars func(childComplexity int) int
+		Cars func(childComplexity int, first *int) int
 	}
 }
 
 type QueryResolver interface {
-	Cars(ctx context.Context) ([]*model.Car, error)
+	Cars(ctx context.Context, first *int) ([]*model.Car, error)
 }
 
 type executableSchema struct {
@@ -117,7 +117,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Cars(childComplexity), true
+		args, err := ec.field_Query_cars_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Cars(childComplexity, args["first"].(*int)), true
 
 	}
 	return 0, false
@@ -170,7 +175,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "graph/car.graphqls", Input: `type Query {
-  cars: [Car]!
+  cars(first: Int = 5): [Car]!
 }
 
 
@@ -204,6 +209,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_cars_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
 	return args, nil
 }
 
@@ -436,9 +456,16 @@ func (ec *executionContext) _Query_cars(ctx context.Context, field graphql.Colle
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_cars_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Cars(rctx)
+		return ec.resolvers.Query().Cars(rctx, args["first"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2338,6 +2365,21 @@ func (ec *executionContext) marshalOCar2ᚖsummerᚑsolutionsᚋgraphqlᚑtest�
 		return graphql.Null
 	}
 	return ec._Car(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

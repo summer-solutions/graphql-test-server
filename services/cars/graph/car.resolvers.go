@@ -6,26 +6,16 @@ package graph
 import (
 	"context"
 	"summer-solutions/graphql-test-server/pkg/dic"
-	"summer-solutions/graphql-test-server/pkg/entity"
+	"summer-solutions/graphql-test-server/services/cars/graph/dataloaders"
 	"summer-solutions/graphql-test-server/services/cars/graph/generated"
 	"summer-solutions/graphql-test-server/services/cars/graph/model"
 
 	"github.com/summer-solutions/orm"
 )
 
-func (r *queryResolver) Cars(ctx context.Context) ([]*model.Car, error) {
-	ormEngine := dic.OrmEngineForContext(ctx)
-	var carEntities []*entity.CarEntity
-	ormEngine.Search(orm.NewWhere("1"), nil, &carEntities)
-	cars := make([]*model.Car, len(carEntities))
-	for i, carEntity := range carEntities {
-		cars[i] = &model.Car{
-			ID:      int64(carEntity.ID),
-			Name:    carEntity.Name,
-			BrandID: int64(carEntity.Brand.ID),
-		}
-	}
-	return cars, nil
+func (r *queryResolver) Cars(ctx context.Context, first *int) ([]*model.Car, error) {
+	dic.OrmEngineForContext(ctx).EnableQueryDebug(orm.QueryLoggerSourceDB)
+	return dataloaders.CarLoaderForContext(ctx).Cars(ctx, *first)
 }
 
 // Query returns generated.QueryResolver implementation.
