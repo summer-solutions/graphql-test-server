@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"summer-solutions/graphql-test-server/pkg/dic"
-	"summer-solutions/graphql-test-server/services/cars/graph/dataloaders"
 	"summer-solutions/graphql-test-server/services/cars/graph/generated"
 	"summer-solutions/graphql-test-server/services/cars/graph/model"
 
@@ -15,7 +14,7 @@ import (
 
 func (r *queryResolver) Cars(ctx context.Context, first *int) ([]*model.Car, error) {
 	dic.OrmEngineForContext(ctx).EnableQueryDebug(orm.QueryLoggerSourceDB)
-	return dataloaders.CarLoaderForContext(ctx).Cars(ctx, *first)
+	return model.CarLoaderForContext(ctx).Cars(ctx, *first)
 }
 
 // Query returns generated.QueryResolver implementation.
